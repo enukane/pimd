@@ -385,19 +385,23 @@ static int parse_pim_hello(char *pim_message, size_t datalen, u_int32 src, u_int
         GET_HOSTSHORT(option_type, data_ptr);
         GET_HOSTSHORT(option_length, data_ptr);
 
-        if (option_type == PIM_MESSAGE_HELLO_HOLDTIME) {
-	    if (PIM_MESSAGE_HELLO_HOLDTIME_LENGTH != option_length) {
-		IF_DEBUG(DEBUG_PIM_HELLO) {
-		    logit(LOG_DEBUG, 0, "PIM HELLO Holdtime from %s: invalid OptionLength = %u",
-			  inet_fmt(src, s1, sizeof(s1)), option_length);
-		}
-		return FALSE;
-	    }
+        switch (option_type) {
+        case PIM_MESSAGE_HELLO_HOLDTIME:
+            if (PIM_MESSAGE_HELLO_HOLDTIME_LENGTH != option_length) {
+                IF_DEBUG(DEBUG_PIM_HELLO) {
+                    logit(LOG_DEBUG, 0, "PIM HELLO HOldtime from %s: invalid OptionLength = %u",
+                            inet_fmt(src, s1, sizeof(s1)), option_length);
+                }
+
+                return FALSE;
+            }
 
 	    GET_HOSTSHORT(*holdtime, data_ptr);
 	    holdtime_received_ok = TRUE;
-	} else {
-	    /* Ignore any unknown options */
+	    break;
+        default:
+            /* Ignore any unknown options */
+	    break;
         }
 
         /* Move to the next option */
